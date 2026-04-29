@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vegas Weekend</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C96A;
+    --dark: #0A0A0A;
+    --dark-2: #111111;
+    --dark-3: #1A1A1A;
+    --text: #E8E0D0;
+    --muted: #888;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  .page {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 60px 32px 80px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 64px;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .header-eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+
+  .header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(72px, 18vw, 120px);
+    line-height: 0.88;
+    letter-spacing: 0.04em;
+    background: linear-gradient(160deg, #fff 20%, var(--gold-light) 60%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header-sub {
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 16px;
+  }
+
+  .header-rule {
+    width: 40px;
+    height: 1px;
+    background: var(--gold);
+    margin: 24px auto 0;
+    opacity: 0.6;
+  }
+
+  /* Things To Do */
+  .things-section {
+    margin-bottom: 56px;
+    animation: fadeUp 0.8s ease 0.05s both;
+  }
+
+  .things-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #222;
+  }
+
+  .things-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 0.08em;
+    color: #fff;
+  }
+
+  .things-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .thing-card {
+    background: var(--dark-3);
+    border: 1px solid #222;
+    border-radius: 4px;
+    padding: 16px;
+    transition: border-color 0.2s;
+  }
+
+  .thing-card:hover {
+    border-color: var(--gold);
+  }
+
+  .thing-icon {
+    font-size: 22px;
+    margin-bottom: 8px;
+  }
+
+  .thing-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+
+  .thing-desc {
+    font-size: 11px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* Day blocks */
+  .day {
+    margin-bottom: 48px;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .day:nth-child(2) { animation-delay: 0.1s; }
+  .day:nth-child(3) { animation-delay: 0.2s; }
+  .day:nth-child(4) { animation-delay: 0.3s; }
+  .day:nth-child(5) { animation-delay: 0.4s; }
+
+  .day-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #222;
+  }
+
+  .day-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 0.08em;
+    color: #fff;
+  }
+
+  .day-date {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  /* Events */
+  .event {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 0 20px;
+    padding: 14px 0;
+    border-bottom: 1px solid #1C1C1C;
+    position: relative;
+    transition: background 0.2s;
+  }
+
+  .event:last-child { border-bottom: none; }
+
+  .event::before {
+    content: '';
+    position: absolute;
+    left: -32px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 0;
+    background: var(--gold);
+    transition: height 0.3s ease;
+    border-radius: 2px;
+  }
+
+  .event:hover::before { height: 60%; }
+
+  .event-time {
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    color: var(--gold);
+    font-weight: 500;
+    padding-top: 3px;
+    line-height: 1.4;
+    word-break: keep-all;
+    white-space: nowrap;
+  }
+
+  .event-time .ampm {
+    display: block;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+
+  .event-body {}
+
+  .event-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: #fff;
+    line-height: 1.3;
+    letter-spacing: 0.01em;
+  }
+
+  .event-detail {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 3px;
+    font-style: italic;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 2px;
+    margin-top: 6px;
+  }
+
+  .tag-show { background: rgba(201,168,76,0.12); color: var(--gold); }
+  .tag-food { background: rgba(255,255,255,0.06); color: #bbb; }
+  .tag-nightlife { background: rgba(140, 80, 255, 0.12); color: #b08aff; }
+  .tag-travel { background: rgba(80,180,255,0.10); color: #80c8ff; }
+  .tag-wildcard { background: rgba(255,120,80,0.10); color: #ff9070; }
+
+  /* Wildcard note */
+  .wildcard-box {
+    background: var(--dark-3);
+    border: 1px solid #2a2a2a;
+    border-left: 3px solid #ff9070;
+    padding: 16px 20px;
+    border-radius: 2px;
+    margin-top: 4px;
+  }
+
+  .wildcard-box .wc-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #ff9070;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  .wildcard-option {
+    font-size: 13px;
+    color: var(--text);
+    padding: 6px 0;
+    border-bottom: 1px solid #222;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .wildcard-option:last-child { border-bottom: none; }
+
+  .wc-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #ff9070;
+    flex-shrink: 0;
+  }
+
+  .wildcard-note {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 10px;
+    font-style: italic;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    margin-top: 64px;
+    padding-top: 32px;
+    border-top: 1px solid #1a1a1a;
+    animation: fadeUp 0.8s ease 0.5s both;
+  }
+
+  .footer-text {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #333;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="header-eyebrow">Group Trip</div>
+    <h1>LAS<br>VEGAS</h1>
+    <div class="header-sub">May 1 – 5, 2026</div>
+    <div class="header-rule"></div>
+  </div>
+
+  <!-- THINGS TO DO -->
+  <div class="things-section">
+    <div class="things-header">
+      <span class="things-title">Things To Do</span>
+    </div>
+    <div class="things-grid">
+      <div class="thing-card">
+        <div class="thing-icon">🪦</div>
+        <div class="thing-name">Neon Sign Graveyard</div>
+        <div class="thing-desc">Iconic boneyard of vintage Vegas signs</div>
+      </div>
+      <div class="thing-card">
+        <div class="thing-icon">☢️</div>
+        <div class="thing-name">Atomic Bomb Museum</div>
+        <div class="thing-desc">National Atomic Testing Museum</div>
+      </div>
+      <div class="thing-card">
+        <div class="thing-icon">🎰</div>
+        <div class="thing-name">Walk the Strip</div>
+        <div class="thing-desc">The full Las Vegas Boulevard experience</div>
+      </div>
+      <div class="thing-card">
+        <div class="thing-icon">💡</div>
+        <div class="thing-name">Fremont Street</div>
+        <div class="thing-desc">Old Town Vegas & the Experience canopy</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- THURSDAY -->
+  <div class="day">
+    <div class="day-header">
+      <span class="day-name">Thursday</span>
+      <span class="day-date">May 1</span>
+    </div>
+    <div class="event">
+      <div class="event-time">10:30<span class="ampm">AM</span></div>
+      <div class="event-body">
+        <div class="event-title">Kelly & Michelle Arrive</div>
+        <div class="event-detail">Check in, get settled</div>
+        <span class="tag tag-travel">Travel</span>
+      </div>
+    </div>
+    <div class="event">
+      <div class="event-time">12:00<span class="ampm">MIDNIGHT</span></div>
+      <div class="event-body">
+        <div class="event-title">Ryan, Christin, Katy & Stephen Arrive</div>
+        <div class="event-detail">Check in, get settled</div>
+        <span class="tag tag-travel">Travel</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FRIDAY -->
+  <div class="day">
+    <div class="day-header">
+      <span class="day-name">Friday</span>
+      <span class="day-date">May 2</span>
+    </div>
+    <div class="event">
+      <div class="event-time">10:40<span class="ampm">PM</span></div>
+      <div class="event-body">
+        <div class="event-title">Zach Arrives</div>
+        <div class="event-detail">Check in, get settled</div>
+        <span class="tag tag-travel">Travel</span>
+      </div>
+    </div>
+    <div class="event">
+      <div class="event-time">1:00<span class="ampm">PM</span></div>
+      <div class="event-body">
+        <div class="event-title">The Sphere — Wizard of Oz</div>
+        <div class="event-detail">Show at the Sphere</div>
+        <span class="tag tag-show">Show</span>
+      </div>
+    </div>
+    <div class="event">
+      <div class="event-time">8:00<span class="ampm">PM</span></div>
+      <div class="event-body">
+        <div class="event-title">Superfrico</div>
+        <div class="event-detail">Dinner</div>
+        <span class="tag tag-food">Dinner</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SATURDAY -->
+  <div class="day">
+    <div class="day-header">
+      <span class="day-name">Saturday</span>
+      <span class="day-date">May 3</span>
+    </div>
+    <div class="event">
+      <div class="event-time">1:00<span class="ampm">PM</span></div>
+      <div class="event-body">
+        <div class="event-title">Kyle & Michelle Arrive</div>
+        <div class="event-detail">Check in, get settled</div>
+        <span class="tag tag-travel">Travel</span>
+      </div>
+    </div>
+    <div class="event">
+      <div class="event-time">12:00<span class="ampm">PM</span></div>
+      <div class="event-body">
+        <div class="event-title">Brunch</div>
+        <div class="event-detail">Late morning brunch</div>
+        <span class="tag tag-food">Brunch</span>
+      </div>
+    </div>
+    <div class="event">
+      <div class="event-time">Evening<span class="ampm">PM</span></div>
+      <div class="event-body">
+        <div class="event-title">Joe's Seafood & Steakhouse</div>
+        <div class="event-detail">Dinner</div>
+        <span class="tag tag-food">Dinner</span>
+      </div>
+    </div>
+    <div class="event">
+      <div class="event-time">10:30<span class="ampm">PM</span></div>
+      <div class="event-body">
+        <div class="event-title">Club Omnia — Tiësto</div>
+        <div class="event-detail">Nightclub</div>
+        <span class="tag tag-nightlife">Nightlife</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUNDAY -->
+  <div class="day">
+    <div class="day-header">
+      <span class="day-name">Sunday</span>
+      <span class="day-date">May 4</span>
+    </div>
+    <div class="event">
+      <div class="event-time">TBD<span class="ampm">WILD CARD</span></div>
+      <div class="event-body">
+        <div class="wildcard-box">
+          <div class="wc-label">Choose Your Adventure</div>
+          <div class="wildcard-option"><span class="wc-dot"></span>Pool Day — Relax & recover</div>
+          <div class="wildcard-option"><span class="wc-dot"></span>Golden Knights vs. Utah Mammoth — Game 7 (if series goes 7)</div>
+          <div class="wildcard-note">⚠ Knights–Mammoth series is tied 2–2 as of Apr 29. Game 7 at T-Mobile Arena TBD pending Game 5 & 6 results.</div>
+        </div>
+        <span class="tag tag-wildcard">Wild Card</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MONDAY -->
+  <div class="day">
+    <div class="day-header">
+      <span class="day-name">Monday</span>
+      <span class="day-date">May 5</span>
+    </div>
+    <div class="event">
+      <div class="event-time">12:00<span class="ampm">PM</span></div>
+      <div class="event-body">
+        <div class="event-title">Depart Las Vegas</div>
+        <div class="event-detail">Flight home — noon departure</div>
+        <span class="tag tag-travel">Travel</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-text">What happens in Vegas &nbsp;·&nbsp; May 2026</div>
+  </div>
+
+</div>
+</body>
+</html>
